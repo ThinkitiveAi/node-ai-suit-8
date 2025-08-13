@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Patient {
+  id            Int            @id @default(autoincrement()) // Auto-increment primary key
+  uuid          String         @unique @default(uuid()) @db.Uuid // UUID in separate column
+  firstName     String         @map("first_name") @db.VarChar(255)
+  lastName      String         @map("last_name") @db.VarChar(255)
+  email         String         @unique @db.VarChar(255)
+  phoneNumber   String         @unique @map("phone_number") @db.VarChar(20)
+  passwordHash  String         @map("password_hash") @db.VarChar(255)
+  dateOfBirth   DateTime       @map("date_of_birth") @db.Date
+  gender        String         @db.VarChar(255)
+  street        String?        @db.VarChar(255)
+  city          String?        @db.VarChar(100)
+  state         String?        @db.VarChar(100)
+  zip           String?        @db.VarChar(20)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  refreshTokens RefreshToken[]
+  appointments  Appointment[]
+
+  @@map("patients")
+}
+
+model Provider {
+  id                Int            @id @default(autoincrement()) // Auto-increment primary key
+  uuid              String         @unique @default(uuid()) @db.Uuid // UUID in separate column
+  firstName         String         @map("first_name") @db.VarChar(255)
+  lastName          String         @map("last_name") @db.VarChar(255)
+  email             String         @unique @db.VarChar(255)
+  phoneNumber       String         @unique @map("phone_number") @db.VarChar(20)
+  passwordHash      String         @map("password_hash") @db.VarChar(255)
+  specialization    String         @db.VarChar(255)
+  licenseNumber     String         @unique @map("license_number") @db.VarChar(100)
+  yearsOfExperience Int            @default(0) @map("years_of_experience")
+  clinicStreet      String?        @map("clinic_street") @db.VarChar(255)
+  clinicCity        String?        @map("clinic_city") @db.VarChar(100)
+  clinicState       String?        @map("clinic_state") @db.VarChar(100)
+  clinicZip         String?        @map("clinic_zip") @db.VarChar(20)
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+  refreshTokens     RefreshToken[]
+  availability      ProviderAvailability[]
+  providerSettings  ProviderAvailabilitySettings?
+  blockDays         ProviderBlockDay[]
+  appointments      Appointment[]
+
+  @@map("providers")
+}
+
+model RefreshToken {
+  id         Int       @id @default(autoincrement()) // Auto-increment primary key
+  uuid       String    @unique @default(uuid()) @db.Uuid // UUID in separate column
+  token      String    @unique @db.VarChar(500)
+  expiresAt  DateTime  @map("expires_at")
+  patientId  Int?      @map("patient_id") // Changed to Int
+  providerId Int?      @map("provider_id") // Changed to Int
+  createdAt  DateTime  @default(now()) @map("created_at")
+  patient    Patient?  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  provider   Provider? @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model ProviderAvailability {
+  id                   Int                 @id @default(autoincrement()) // Auto-increment primary key
+  uuid                 String              @unique @default(uuid()) @db.Uuid // UUID in separate column
+  providerId           Int                 @map("provider_id") // Changed to Int
+  date                 DateTime            @db.Date
+  startTime            String              @map("start_time") @db.VarChar(5) // HH:mm format
+  endTime              String              @map("end_time") @db.VarChar(5)   // HH:mm format
+  isRecurring          Boolean             @default(false) @map("is_recurring")
+  recurrencePattern    RecurrencePattern?  @map("recurrence_pattern")
+  recurrenceEndDate    DateTime?           @map("recurrence_end_date") @db.Date
+  slotDuration         Int                 @default(30) @map("slot_duration") // minutes
+  status               AvailabilityStatus  @default(AVAILABLE)
+  maxAppointments      Int                 @default(1) @map("max_appointments")
+  currentAppointments  Int                 @default(0) @map("current_appointments")
+  notes                String?             @db.Text
+  timezone             String              @default("UTC") @db.VarChar(50)
+  location             String?             @db.VarChar(255) // Physical location or "Virtual"
+  isVirtual            Boolean             @default(false) @map("is_virtual")
+  dayOfWeek            String?             @map("day_of_week") @db.VarChar(10) // For recurring slots
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+
+  provider             Provider            @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, date, startTime, endTime])
+  @@index([date, status])
+  @@index([providerId, date])
+  @@index([date, startTime, endTime, status])
+  @@map("provider_availability")
+}
+
+model ProviderAvailabilitySettings {
+  id                           Int            @id @default(autoincrement()) // Auto-increment primary key
+  uuid                         String         @unique @default(uuid()) @db.Uuid // UUID in separate column
+  providerId                   Int            @unique @map("provider_id") // Changed to Int
+  bookingWindowDays            Int            @default(30) @map("booking_window_days") // How far in advance patients can book
+  bookingWindowType            BookingWindowType @default(DAYS) @map("booking_window_type")
+  timezone                     String         @default("UTC") @db.VarChar(50)
+  newAppointmentDuration       Int            @default(30) @map("new_appointment_duration") // minutes
+  followUpAppointmentDuration  Int            @default(15) @map("follow_up_appointment_duration") // minutes
+  minimumNoticeAmount          Int            @default(2) @map("minimum_notice_amount") // Amount for minimum notice
+  minimumNoticeType            NoticeType     @default(HOURS) @map("minimum_notice_type") // HOURS, DAYS, WEEKS
+  eventBufferMinutes           Int            @default(0) @map("event_buffer_minutes") // Time between appointments
+  createdAt                    DateTime       @default(now()) @map("created_at")
+  updatedAt                    DateTime       @updatedAt @map("updated_at")
+
+  provider                     Provider       @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@map("provider_availability_settings")
+}
+
+model ProviderBlockDay {
+  id          Int       @id @default(autoincrement()) // Auto-increment primary key
+  uuid        String    @unique @default(uuid()) @db.Uuid // UUID in separate column
+  providerId  Int       @map("provider_id") // Changed to Int
+  date        DateTime  @db.Date
+  startTime   String?   @map("start_time") @db.VarChar(5) // HH:mm format, null for full day
+  endTime     String?   @map("end_time") @db.VarChar(5)   // HH:mm format, null for full day
+  isFullDay   Boolean   @default(false) @map("is_full_day")
+  reason      String?   @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  provider    Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, date, startTime, endTime])
+  @@index([providerId, date])
+  @@map("provider_block_days")
+}
+
+enum RecurrencePattern {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  BOOKED
+  CANCELLED
+  BLOCKED
+}
+
+enum BookingWindowType {
+  DAYS
+  WEEKS
+  MONTHS
+}
+
+enum NoticeType {
+  HOURS
+  DAYS
+  WEEKS
+}
+
+model Appointment {
+  id                Int               @id @default(autoincrement()) // Auto-increment primary key
+  uuid              String            @unique @default(uuid()) @db.Uuid // UUID in separate column
+  patientId         Int               @map("patient_id") // Changed to Int
+  providerId        Int               @map("provider_id") // Changed to Int
+  appointmentType   String            @map("appointment_type") @db.VarChar(255)
+  appointmentMode   AppointmentMode   @map("appointment_mode")
+  scheduledDate     DateTime          @map("scheduled_date")
+  estimatedAmount   Decimal           @map("estimated_amount") @db.Decimal(10, 2)
+  reasonForVisit    String?           @map("reason_for_visit") @db.Text
+  status            AppointmentStatus @default(SCHEDULED)
+  notes             String?           @db.Text
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  patient           Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  provider          Provider          @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([providerId])
+  @@index([scheduledDate])
+  @@index([status])
+  @@map("appointments")
+}
+
+enum AppointmentMode {
+  IN_PERSON
+  VIDEO_CALL
+  HOME
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
