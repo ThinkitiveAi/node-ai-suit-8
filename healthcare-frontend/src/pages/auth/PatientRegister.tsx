@@ -11,11 +11,9 @@ import {
   Select,
   MenuItem,
   Alert,
-  Stepper,
-  Step,
-  StepLabel,
   Checkbox,
   FormControlLabel,
+  Divider,
 } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -48,7 +46,7 @@ const schema = yup.object().shape({
       }
       return age >= 13;
     }),
-  gender: yup.string().required('Gender is required').oneOf(['male', 'female', 'other', 'prefer_not_to_say']),
+  gender: yup.string().required('Gender is required').oneOf(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']),
   address: yup.object().shape({
     street: yup.string().required('Street address is required').max(200, 'Street address must be less than 200 characters'),
     city: yup.string().required('City is required').max(100, 'City must be less than 100 characters'),
@@ -66,10 +64,7 @@ const schema = yup.object().shape({
   }),
 });
 
-const steps = ['Personal Information', 'Contact & Address', 'Emergency Contact & Insurance'];
-
 const PatientRegister: React.FC = () => {
-  const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -83,6 +78,7 @@ const PatientRegister: React.FC = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    mode: 'onChange',
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -91,7 +87,7 @@ const PatientRegister: React.FC = () => {
       password: '',
       confirmPassword: '',
       dateOfBirth: '',
-      gender: 'prefer_not_to_say',
+      gender: 'PREFER_NOT_TO_SAY',
       address: {
         street: '',
         city: '',
@@ -111,6 +107,7 @@ const PatientRegister: React.FC = () => {
   });
 
   const onSubmit = async (data: any) => {
+    console.log('Form submitted with data:', data);
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -127,7 +124,9 @@ const PatientRegister: React.FC = () => {
         delete registrationData.insuranceInfo;
       }
 
+      console.log('Calling API with data:', registrationData);
       const response = await apiService.patientRegister(registrationData);
+      console.log('API response:', response);
       
       if (response.success) {
         setSuccess('Registration successful! You can now log in.');
@@ -138,30 +137,48 @@ const PatientRegister: React.FC = () => {
         setError(response.message || 'Registration failed');
       }
     } catch (err: any) {
+      console.error('Registration error:', err);
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleNext = () => {
-    setActiveStep((prevStep) => prevStep + 1);
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevStep) => prevStep - 1);
-  };
-
   const handleFormSubmit = (e: React.FormEvent) => {
+    console.log('Form submit event triggered');
     e.preventDefault();
     handleSubmit(onSubmit)(e);
   };
 
-  const renderStepContent = (step: number) => {
-    switch (step) {
-      case 0:
-        return (
-          <Box sx={{ mt: 3 }}>
+  return (
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h4" component="h1" align="center" gutterBottom>
+          Patient Registration
+        </Typography>
+        <Typography variant="body1" align="center" color="text.secondary" paragraph>
+          Create your patient account to access healthcare services
+        </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+
+        {success && (
+          <Alert severity="success" sx={{ mb: 3 }}>
+            {success}
+          </Alert>
+        )}
+
+        <form onSubmit={handleFormSubmit}>
+          {/* Personal Information Section */}
+          <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+            Personal Information
+          </Typography>
+          
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
               <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
                 <Controller
@@ -193,38 +210,39 @@ const PatientRegister: React.FC = () => {
                   )}
                 />
               </Box>
-              <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
-                <Controller
-                  name="email"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Email"
-                      type="email"
-                      error={!!errors.email}
-                      helperText={(errors.email?.message as string) || ''}
-                    />
-                  )}
+            </Box>
+            
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Email"
+                  type="email"
+                  error={!!errors.email}
+                  helperText={(errors.email?.message as string) || ''}
                 />
-              </Box>
-              <Box sx={{ flex: '1 1 100%', minWidth: 0 }}>
-                <Controller
-                  name="phoneNumber"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Phone Number"
-                      placeholder="+1234567890"
-                      error={!!errors.phoneNumber}
-                      helperText={(errors.phoneNumber?.message as string) || ''}
-                    />
-                  )}
+              )}
+            />
+            
+            <Controller
+              name="phoneNumber"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Phone Number"
+                  placeholder="+1234567890"
+                  error={!!errors.phoneNumber}
+                  helperText={(errors.phoneNumber?.message as string) || ''}
                 />
-              </Box>
+              )}
+            />
+            
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
               <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
                 <Controller
                   name="dateOfBirth"
@@ -250,10 +268,10 @@ const PatientRegister: React.FC = () => {
                     <FormControl fullWidth error={!!errors.gender}>
                       <InputLabel>Gender</InputLabel>
                       <Select {...field} label="Gender">
-                        <MenuItem value="male">Male</MenuItem>
-                        <MenuItem value="female">Female</MenuItem>
-                        <MenuItem value="other">Other</MenuItem>
-                        <MenuItem value="prefer_not_to_say">Prefer not to say</MenuItem>
+                        <MenuItem value="MALE">Male</MenuItem>
+                        <MenuItem value="FEMALE">Female</MenuItem>
+                        <MenuItem value="OTHER">Other</MenuItem>
+                        <MenuItem value="PREFER_NOT_TO_SAY">Prefer not to say</MenuItem>
                       </Select>
                       {errors.gender && (
                         <Typography color="error" variant="caption">
@@ -266,295 +284,270 @@ const PatientRegister: React.FC = () => {
               </Box>
             </Box>
           </Box>
-        );
 
-      case 1:
-        return (
-          <Box sx={{ mt: 3 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Box>
-                <Controller
-                  name="password"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Password"
-                      type="password"
-                      error={!!errors.password}
-                      helperText={(errors.password?.message as string) || ''}
-                    />
-                  )}
-                />
-              </Box>
-              <Box>
-                <Controller
-                  name="confirmPassword"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Confirm Password"
-                      type="password"
-                      error={!!errors.confirmPassword}
-                      helperText={(errors.confirmPassword?.message as string) || ''}
-                    />
-                  )}
-                />
-              </Box>
-              <Box>
-                <Controller
-                  name="address.street"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Street Address"
-                      error={!!(errors.address as any)?.street}
-                      helperText={((errors.address as any)?.street?.message as string) || ''}
-                    />
-                  )}
-                />
-              </Box>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
-                  <Controller
-                    name="address.city"
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="City"
-                        error={!!(errors.address as any)?.city}
-                        helperText={((errors.address as any)?.city?.message as string) || ''}
-                      />
-                    )}
+          <Divider sx={{ my: 3 }} />
+
+          {/* Security Section */}
+          <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+            Security
+          </Typography>
+          
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+            <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
+              <Controller
+                name="password"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Password"
+                    type="password"
+                    error={!!errors.password}
+                    helperText={(errors.password?.message as string) || ''}
                   />
-                </Box>
-                <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
-                  <Controller
-                    name="address.state"
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="State"
-                        error={!!(errors.address as any)?.state}
-                        helperText={((errors.address as any)?.state?.message as string) || ''}
-                      />
-                    )}
+                )}
+              />
+            </Box>
+            <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
+              <Controller
+                name="confirmPassword"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Confirm Password"
+                    type="password"
+                    error={!!errors.confirmPassword}
+                    helperText={(errors.confirmPassword?.message as string) || ''}
                   />
-                </Box>
-              </Box>
-              <Box>
+                )}
+              />
+            </Box>
+          </Box>
+
+          <Divider sx={{ my: 3 }} />
+
+          {/* Address Section */}
+          <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+            Address Information
+          </Typography>
+          
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
+            <Controller
+              name="address.street"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Street Address"
+                  error={!!(errors.address as any)?.street}
+                  helperText={((errors.address as any)?.street?.message as string) || ''}
+                />
+              )}
+            />
+            
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
                 <Controller
-                  name="address.zip"
+                  name="address.city"
                   control={control}
                   render={({ field }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      label="ZIP Code"
-                      error={!!(errors.address as any)?.zip}
-                      helperText={((errors.address as any)?.zip?.message as string) || ''}
+                      label="City"
+                      error={!!(errors.address as any)?.city}
+                      helperText={((errors.address as any)?.city?.message as string) || ''}
+                    />
+                  )}
+                />
+              </Box>
+              <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
+                <Controller
+                  name="address.state"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="State"
+                      error={!!(errors.address as any)?.state}
+                      helperText={((errors.address as any)?.state?.message as string) || ''}
                     />
                   )}
                 />
               </Box>
             </Box>
-          </Box>
-        );
-
-      case 2:
-        return (
-          <Box sx={{ mt: 3 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Box>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={includeEmergencyContact}
-                      onChange={(e) => setIncludeEmergencyContact(e.target.checked)}
-                    />
-                  }
-                  label="Include Emergency Contact Information"
+            
+            <Controller
+              name="address.zip"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="ZIP Code"
+                  error={!!(errors.address as any)?.zip}
+                  helperText={((errors.address as any)?.zip?.message as string) || ''}
                 />
-              </Box>
-              {includeEmergencyContact && (
-                <>
-                  <Box>
-                    <Controller
-                      name="emergencyContact.name"
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          fullWidth
-                          label="Emergency Contact Name"
-                          error={!!(errors.emergencyContact as any)?.name}
-                          helperText={((errors.emergencyContact as any)?.name?.message as string) || ''}
-                        />
-                      )}
-                    />
-                  </Box>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                    <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
-                      <Controller
-                        name="emergencyContact.phone"
-                        control={control}
-                        render={({ field }) => (
-                          <TextField
-                            {...field}
-                            fullWidth
-                            label="Emergency Contact Phone"
-                            error={!!(errors.emergencyContact as any)?.phone}
-                            helperText={((errors.emergencyContact as any)?.phone?.message as string) || ''}
-                          />
-                        )}
-                      />
-                    </Box>
-                    <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
-                      <Controller
-                        name="emergencyContact.relationship"
-                        control={control}
-                        render={({ field }) => (
-                          <TextField
-                            {...field}
-                            fullWidth
-                            label="Relationship"
-                            error={!!(errors.emergencyContact as any)?.relationship}
-                            helperText={((errors.emergencyContact as any)?.relationship?.message as string) || ''}
-                          />
-                        )}
-                      />
-                    </Box>
-                  </Box>
-                </>
               )}
-              <Box>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={includeInsurance}
-                      onChange={(e) => setIncludeInsurance(e.target.checked)}
-                    />
-                  }
-                  label="Include Insurance Information"
+            />
+          </Box>
+
+          <Divider sx={{ my: 3 }} />
+
+          {/* Optional Information Section */}
+          <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+            Optional Information
+          </Typography>
+
+          {/* Emergency Contact */}
+          <Box sx={{ mb: 3 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={includeEmergencyContact}
+                  onChange={(e) => setIncludeEmergencyContact(e.target.checked)}
                 />
-              </Box>
-              {includeInsurance && (
+              }
+              label="Include Emergency Contact Information"
+            />
+            {includeEmergencyContact && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+                <Controller
+                  name="emergencyContact.name"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Emergency Contact Name"
+                      error={!!(errors.emergencyContact as any)?.name}
+                      helperText={((errors.emergencyContact as any)?.name?.message as string) || ''}
+                    />
+                  )}
+                />
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                   <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
                     <Controller
-                      name="insuranceInfo.provider"
+                      name="emergencyContact.phone"
                       control={control}
                       render={({ field }) => (
                         <TextField
                           {...field}
                           fullWidth
-                          label="Insurance Provider"
-                          error={!!(errors.insuranceInfo as any)?.provider}
-                          helperText={((errors.insuranceInfo as any)?.provider?.message as string) || ''}
+                          label="Emergency Contact Phone"
+                          error={!!(errors.emergencyContact as any)?.phone}
+                          helperText={((errors.emergencyContact as any)?.phone?.message as string) || ''}
                         />
                       )}
                     />
                   </Box>
                   <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
                     <Controller
-                      name="insuranceInfo.policyNumber"
+                      name="emergencyContact.relationship"
                       control={control}
                       render={({ field }) => (
                         <TextField
                           {...field}
                           fullWidth
-                          label="Policy Number"
-                          error={!!(errors.insuranceInfo as any)?.policyNumber}
-                          helperText={((errors.insuranceInfo as any)?.policyNumber?.message as string) || ''}
+                          label="Relationship"
+                          error={!!(errors.emergencyContact as any)?.relationship}
+                          helperText={((errors.emergencyContact as any)?.relationship?.message as string) || ''}
                         />
                       )}
                     />
                   </Box>
                 </Box>
-              )}
-            </Box>
+              </Box>
+            )}
           </Box>
-        );
 
-      default:
-        return null;
-    }
-  };
+          {/* Insurance Information */}
+          <Box sx={{ mb: 4 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={includeInsurance}
+                  onChange={(e) => setIncludeInsurance(e.target.checked)}
+                />
+              }
+              label="Include Insurance Information"
+            />
+            {includeInsurance && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
+                <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
+                  <Controller
+                    name="insuranceInfo.provider"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Insurance Provider"
+                        error={!!(errors.insuranceInfo as any)?.provider}
+                        helperText={((errors.insuranceInfo as any)?.provider?.message as string) || ''}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box sx={{ flex: '1 1 300px', minWidth: 0 }}>
+                  <Controller
+                    name="insuranceInfo.policyNumber"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Policy Number"
+                        error={!!(errors.insuranceInfo as any)?.policyNumber}
+                        helperText={((errors.insuranceInfo as any)?.policyNumber?.message as string) || ''}
+                      />
+                    )}
+                  />
+                </Box>
+              </Box>
+            )}
+          </Box>
 
-  return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h4" component="h1" align="center" gutterBottom>
-          Patient Registration
-        </Typography>
-        <Typography variant="body1" align="center" color="text.secondary" paragraph>
-          Create your patient account to access healthcare services
-        </Typography>
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-
-        {success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {success}
-          </Alert>
-        )}
-
-        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-
-        <form onSubmit={handleFormSubmit}>
-          {renderStepContent(activeStep)}
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+          {/* Submit Button */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
             <Button
-              disabled={activeStep === 0}
-              onClick={handleBack}
+              type="submit"
+              variant="contained"
+              size="large"
+              disabled={loading}
+              sx={{ minWidth: 200, py: 1.5 }}
+              onClick={() => {
+                console.log('Submit button clicked');
+                console.log('Form errors:', errors);
+                console.log('Loading state:', loading);
+              }}
             >
-              Back
+              {loading ? 'Registering...' : 'Complete Registration'}
             </Button>
-            <Box>
-              {activeStep === steps.length - 1 ? (
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={loading}
-                >
-                  {loading ? 'Registering...' : 'Complete Registration'}
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  onClick={handleNext}
-                >
-                  Next
-                </Button>
-              )}
-            </Box>
           </Box>
+
+          {/* Debug Information - Show validation errors */}
+          {Object.keys(errors).length > 0 && (
+            <Box sx={{ mb: 3, p: 2, bgcolor: 'error.light', borderRadius: 1 }}>
+              <Typography variant="h6" color="error.dark">
+                Validation Errors (Debug):
+              </Typography>
+              <pre style={{ fontSize: '12px', color: '#d32f2f' }}>
+                {JSON.stringify(errors, null, 2)}
+              </pre>
+            </Box>
+          )}
         </form>
 
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
+        <Box sx={{ textAlign: 'center' }}>
           <Typography variant="body2">
             Already have an account?{' '}
-            <Link to="/patient/login" style={{ textDecoration: 'none' }}>
+            <Link to="/patient/login" style={{ textDecoration: 'none', color: '#2563eb' }}>
               Sign in here
             </Link>
           </Typography>

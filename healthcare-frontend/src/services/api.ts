@@ -115,39 +115,39 @@ class ApiService {
 
   // Provider Authentication
   async providerRegister(data: ProviderRegistrationForm): Promise<ApiResponse<AuthResponse>> {
-    const response = await this.api.post('/provider/register', data);
+    const response = await this.api.post('/api/v1/provider/register', data);
     return response.data;
   }
 
   async providerLogin(data: LoginForm): Promise<ApiResponse<AuthResponse>> {
-    const response = await this.api.post('/provider/login', data);
+    const response = await this.api.post('/api/v1/provider/login', data);
     return response.data;
   }
 
   // Patient Authentication
   async patientRegister(data: PatientRegistrationForm): Promise<ApiResponse<AuthResponse>> {
-    const response = await this.api.post('/patient/register', data);
+    const response = await this.api.post('/api/v1/patient/register', data);
     return response.data;
   }
 
   async patientLogin(data: LoginForm): Promise<ApiResponse<AuthResponse>> {
-    const response = await this.api.post('/patient/login', data);
+    const response = await this.api.post('/api/v1/patient/login', data);
     return response.data;
   }
 
   // Token Management
   async refreshToken(refreshToken: string): Promise<ApiResponse<AuthResponse>> {
-    const response = await this.api.post('/auth/refresh', { refreshToken });
+    const response = await this.api.post('/api/v1/auth/refresh', { refreshToken });
     return response.data;
   }
 
   async logout(refreshToken: string): Promise<ApiResponse> {
-    const response = await this.api.post('/auth/logout', { refreshToken });
+    const response = await this.api.post('/api/v1/auth/logout', { refreshToken });
     return response.data;
   }
 
   async debugToken(): Promise<ApiResponse> {
-    const response = await this.api.get('/auth/debug');
+    const response = await this.api.get('/api/v1/auth/debug');
     return response.data;
   }
 
@@ -174,12 +174,12 @@ class ApiService {
 
   // Provider Availability Management
   async createAvailability(data: any): Promise<ApiResponse> {
-    const response = await this.api.post('/provider/availability', data);
+    const response = await this.api.post('/api/v1/provider/availability', data);
     return response.data;
   }
 
   async createBulkAvailability(data: any): Promise<ApiResponse> {
-    const response = await this.api.post('/provider/availability/bulk', data);
+    const response = await this.api.post('/api/v1/provider/availability/bulk', data);
     return response.data;
   }
 
@@ -190,7 +190,7 @@ class ApiService {
         queryParams.append(key, value.toString());
       }
     });
-    const response = await this.api.get(`/provider/availability/my?${queryParams}`);
+    const response = await this.api.get(`/api/v1/provider/availability/my?${queryParams}`);
     return response.data;
   }
 
@@ -204,33 +204,33 @@ class ApiService {
         queryParams.append(key, value.toString());
       }
     });
-    const response = await this.api.get(`/provider/${providerId}/availability?${queryParams}`);
+    const response = await this.api.get(`/api/v1/provider/${providerId}/availability?${queryParams}`);
     return response.data;
   }
 
   async updateAvailability(slotId: string, data: any): Promise<ApiResponse> {
-    const response = await this.api.put(`/provider/availability/${slotId}`, data);
+    const response = await this.api.put(`/api/v1/provider/availability/${slotId}`, data);
     return response.data;
   }
 
   async deleteAvailability(slotId: string): Promise<ApiResponse> {
-    const response = await this.api.delete(`/provider/availability/${slotId}`);
+    const response = await this.api.delete(`/api/v1/provider/availability/${slotId}`);
     return response.data;
   }
 
   // Enhanced Availability
   async createComprehensiveAvailability(data: any): Promise<ApiResponse> {
-    const response = await this.api.post('/provider/availability/comprehensive', data);
+    const response = await this.api.post('/api/v1/provider/availability/comprehensive', data);
     return response.data;
   }
 
   async getProviderSettings(): Promise<ApiResponse> {
-    const response = await this.api.get('/provider/settings/availability');
+    const response = await this.api.get('/api/v1/provider/settings/availability');
     return response.data;
   }
 
   async updateProviderSettings(data: any): Promise<ApiResponse> {
-    const response = await this.api.post('/provider/settings/availability', data);
+    const response = await this.api.post('/api/v1/provider/settings/availability', data);
     return response.data;
   }
 
@@ -241,17 +241,17 @@ class ApiService {
         queryParams.append(key, value.toString());
       }
     });
-    const response = await this.api.get(`/provider/block-days?${queryParams}`);
+    const response = await this.api.get(`/api/v1/provider/block-days?${queryParams}`);
     return response.data;
   }
 
   async createBlockDay(data: any): Promise<ApiResponse> {
-    const response = await this.api.post('/provider/block-days', data);
+    const response = await this.api.post('/api/v1/provider/block-days', data);
     return response.data;
   }
 
   async createBulkBlockDays(data: any): Promise<ApiResponse> {
-    const response = await this.api.post('/provider/block-days/bulk', data);
+    const response = await this.api.post('/api/v1/provider/block-days/bulk', data);
     return response.data;
   }
 
@@ -262,12 +262,12 @@ class ApiService {
         queryParams.append(key, value.toString());
       }
     });
-    const response = await this.api.get(`/providers/${providerId}/availability/enhanced?${queryParams}`);
+    const response = await this.api.get(`/api/v1/providers/${providerId}/availability/enhanced?${queryParams}`);
     return response.data;
   }
 
   async getProviderCalendar(providerId: string, month: string): Promise<ApiResponse> {
-    const response = await this.api.get(`/availability/calendar/${providerId}?month=${month}`);
+    const response = await this.api.get(`/api/v1/availability/calendar/${providerId}?month=${month}`);
     return response.data;
   }
 
@@ -279,33 +279,33 @@ class ApiService {
         queryParams.append(key, value.toString());
       }
     });
-    const response = await this.api.get(`/availability/search?${queryParams}`);
+    const response = await this.api.get(`/api/v1/availability/search?${queryParams}`);
     return response.data;
   }
 
-  async bookAppointment(slotId: string, appointmentData: any): Promise<ApiResponse> {
-    const response = await this.api.post(`/appointments/book/${slotId}`, appointmentData);
+  async bookAppointment(appointmentData: any): Promise<ApiResponse> {
+    const response = await this.api.post(`/api/v1/appointments`, appointmentData);
     return response.data;
   }
 
   // User Profile Management
   async getProviderProfile(): Promise<ApiResponse> {
-    const response = await this.api.get('/provider/profile');
+    const response = await this.api.get('/api/v1/provider/profile');
     return response.data;
   }
 
   async getPatientProfile(): Promise<ApiResponse> {
-    const response = await this.api.get('/patient/profile');
+    const response = await this.api.get('/api/v1/patient/profile');
     return response.data;
   }
 
   async updateProviderProfile(data: any): Promise<ApiResponse> {
-    const response = await this.api.patch('/provider/profile', data);
+    const response = await this.api.patch('/api/v1/provider/profile', data);
     return response.data;
   }
 
   async updatePatientProfile(data: any): Promise<ApiResponse> {
-    const response = await this.api.patch('/patient/profile', data);
+    const response = await this.api.patch('/api/v1/patient/profile', data);
     return response.data;
   }
 }

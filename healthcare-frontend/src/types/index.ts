@@ -22,7 +22,7 @@ export interface Patient extends User {
   role: 'patient';
   phoneNumber: string;
   dateOfBirth: string;
-  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  gender: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
   address: Address;
   emergencyContact?: EmergencyContact;
   medicalHistory?: string[];
@@ -137,7 +137,7 @@ export interface PatientRegistrationForm {
   phoneNumber: string;
   password: string;
   dateOfBirth: string;
-  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  gender: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
   address: Address;
   emergencyContact?: EmergencyContact;
   insuranceInfo?: InsuranceInfo;

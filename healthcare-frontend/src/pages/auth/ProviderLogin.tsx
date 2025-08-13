@@ -23,7 +23,7 @@ import { apiService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 const schema = yup.object().shape({
-  emailOrPhone: yup.string().required('Email or phone is required'),
+  emailOrPhone: yup.string().required('Email or phone number is required'),
   password: yup.string().required('Password is required'),
 });
 

@@ -32,8 +32,10 @@ import {
 } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { apiService } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const AppointmentSearch: React.FC = () => {
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useState({
     date: '',
     specialization: '',
@@ -48,8 +50,10 @@ const AppointmentSearch: React.FC = () => {
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
   const [bookingDialog, setBookingDialog] = useState(false);
   const [bookingData, setBookingData] = useState({
-    patientName: '',
-    patientPhone: '',
+    appointmentType: 'General Checkup',
+    appointmentMode: 'IN_PERSON',
+    estimatedAmount: 150.00,
+    reasonForVisit: '',
     notes: '',
   });
 
@@ -71,12 +75,23 @@ const AppointmentSearch: React.FC = () => {
       if (searchParams.maxPrice) params.maxPrice = searchParams.maxPrice;
       if (searchParams.insuranceAccepted) params.insuranceAccepted = searchParams.insuranceAccepted === 'true';
 
+      console.log('Search params:', params);
       const response = await apiService.searchAppointments(params);
+      console.log('API Response:', response);
+      
       if (response.success && response.data) {
-        setProviders(response.data.data || []);
+        // The response structure is: response.data.data.data (actual providers array)
+        const providersData = response.data.data?.data || response.data.data || [];
+        console.log('Extracted providers data:', providersData);
+        setProviders(Array.isArray(providersData) ? providersData : []);
+      } else {
+        console.log('No success or data in response');
+        setProviders([]);
       }
     } catch (err: any) {
+      console.error('Search error:', err);
       setError(err.response?.data?.message || 'Failed to search for providers');
+      setProviders([]); // Ensure providers is always an array on error
     } finally {
       setLoading(false);
     }
@@ -89,23 +104,42 @@ const AppointmentSearch: React.FC = () => {
 
   const handleBookingSubmit = async () => {
     try {
-      if (!bookingData.patientName || !bookingData.patientPhone) {
-        setError('Please fill in all required fields');
+      if (!bookingData.reasonForVisit) {
+        setError('Please fill in the reason for visit');
         return;
       }
 
+      if (!user?.id) {
+        setError('You must be logged in to book an appointment');
+        return;
+      }
+
+      // Create scheduled date from selected slot
+      const scheduledDate = new Date(`${selectedSlot.date}T${selectedSlot.startTime}:00.000Z`).toISOString();
+
       const appointmentData = {
-        patientName: bookingData.patientName,
-        patientPhone: bookingData.patientPhone,
+        patientId: user.id,
+        providerId: selectedSlot.providerId,
+        appointmentType: bookingData.appointmentType,
+        appointmentMode: bookingData.appointmentMode,
+        scheduledDate: scheduledDate,
+        estimatedAmount: bookingData.estimatedAmount,
+        reasonForVisit: bookingData.reasonForVisit,
         notes: bookingData.notes,
-        appointmentType: selectedSlot.appointmentType || 'consultation',
       };
 
-      await apiService.bookAppointment(selectedSlot.id, appointmentData);
+      console.log('Booking appointment with data:', appointmentData);
+      await apiService.bookAppointment(appointmentData);
       
       setBookingDialog(false);
       setSelectedSlot(null);
-      setBookingData({ patientName: '', patientPhone: '', notes: '' });
+      setBookingData({
+        appointmentType: 'General Checkup',
+        appointmentMode: 'IN_PERSON',
+        estimatedAmount: 150.00,
+        reasonForVisit: '',
+        notes: '',
+      });
       
       // Refresh search results
       handleSearch();
@@ -113,6 +147,7 @@ const AppointmentSearch: React.FC = () => {
       // Show success message (you could add a success state)
       alert('Appointment booked successfully!');
     } catch (err: any) {
+      console.error('Booking error:', err);
       setError(err.response?.data?.message || 'Failed to book appointment');
     }
   };
@@ -294,7 +329,7 @@ const AppointmentSearch: React.FC = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
           <CircularProgress size={60} />
         </Box>
-      ) : providers.length === 0 ? (
+      ) : !Array.isArray(providers) || providers.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Search sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -459,19 +494,47 @@ const AppointmentSearch: React.FC = () => {
           )}
           
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControl fullWidth required>
+              <InputLabel>Appointment Type</InputLabel>
+              <Select
+                value={bookingData.appointmentType}
+                onChange={(e) => setBookingData({ ...bookingData, appointmentType: e.target.value })}
+                label="Appointment Type"
+              >
+                <MenuItem value="General Checkup">General Checkup</MenuItem>
+                <MenuItem value="Follow-up">Follow-up</MenuItem>
+                <MenuItem value="Consultation">Consultation</MenuItem>
+                <MenuItem value="Emergency">Emergency</MenuItem>
+                <MenuItem value="Telemedicine">Telemedicine</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth required>
+              <InputLabel>Appointment Mode</InputLabel>
+              <Select
+                value={bookingData.appointmentMode}
+                onChange={(e) => setBookingData({ ...bookingData, appointmentMode: e.target.value })}
+                label="Appointment Mode"
+              >
+                <MenuItem value="IN_PERSON">In Person</MenuItem>
+                <MenuItem value="TELEMEDICINE">Telemedicine</MenuItem>
+              </Select>
+            </FormControl>
             <TextField
-              label="Your Name"
-              value={bookingData.patientName}
-              onChange={(e) => setBookingData({ ...bookingData, patientName: e.target.value })}
+              label="Estimated Amount ($)"
+              type="number"
+              value={bookingData.estimatedAmount}
+              onChange={(e) => setBookingData({ ...bookingData, estimatedAmount: parseFloat(e.target.value) || 0 })}
               fullWidth
               required
             />
             <TextField
-              label="Phone Number"
-              value={bookingData.patientPhone}
-              onChange={(e) => setBookingData({ ...bookingData, patientPhone: e.target.value })}
+              label="Reason for Visit"
+              value={bookingData.reasonForVisit}
+              onChange={(e) => setBookingData({ ...bookingData, reasonForVisit: e.target.value })}
               fullWidth
               required
+              multiline
+              rows={2}
             />
             <TextField
               label="Notes (Optional)"

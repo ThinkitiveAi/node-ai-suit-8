@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Health First API Collection",
-    "description": "Comprehensive API collection for the Health First healthcare application. Includes authentication, patient management, provider management, and availability scheduling endpoints.",
+    "name": "Health First API",
+    "description": "Comprehensive API collection for the Health First healthcare application. This collection includes all endpoints for authentication, patient management, provider management, availability scheduling, and appointment management.",
     "version": "1.0.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -22,12 +22,22 @@
       "type": "string"
     },
     {
+      "key": "patientId",
+      "value": "",
+      "type": "string"
+    },
+    {
       "key": "providerId",
       "value": "",
       "type": "string"
     },
     {
-      "key": "patientId",
+      "key": "appointmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "availabilitySlotId",
       "value": "",
       "type": "string"
     }
@@ -44,7 +54,7 @@
   },
   "item": [
     {
-      "name": "System Health",
+      "name": "📊 System Health",
       "item": [
         {
           "name": "Health Check",
@@ -56,7 +66,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["health"]
             },
-            "description": "Check the overall health status of the application and its dependencies"
+            "description": "Check the overall health status of the application and its dependencies."
           },
           "response": []
         },
@@ -70,7 +80,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["health", "ready"]
             },
-            "description": "Check if the application is ready to serve traffic"
+            "description": "Check if the application is ready to serve traffic."
           },
           "response": []
         },
@@ -84,7 +94,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["health", "live"]
             },
-            "description": "Check if the application is alive and responding"
+            "description": "Check if the application is alive and responding."
           },
           "response": []
         },
@@ -98,14 +108,14 @@
               "host": ["{{baseUrl}}"],
               "path": ["health", "metrics"]
             },
-            "description": "Get basic application metrics for monitoring"
+            "description": "Get basic application metrics for monitoring."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Authentication",
+      "name": "🔐 Authentication",
       "item": [
         {
           "name": "Register Patient",
@@ -119,14 +129,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"patient@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phoneNumber\": \"+1234567890\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"gender\": \"MALE\",\n  \"address\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zip\": \"10001\"\n  }\n}"
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+1234567890\",\n  \"password\": \"Password123!\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"gender\": \"MALE\",\n  \"address\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zip\": \"10001\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/patient/register",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "patient", "register"]
             },
-            "description": "Register a new patient account"
+            "description": "Register a new patient account."
           },
           "response": []
         },
@@ -142,14 +152,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"provider@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"Dr. Jane\",\n  \"lastName\": \"Smith\",\n  \"phoneNumber\": \"+1234567890\",\n  \"specialization\": \"Cardiology\",\n  \"licenseNumber\": \"MD123456\",\n  \"yearsOfExperience\": 5,\n  \"clinicAddress\": {\n    \"street\": \"123 Medical Center Dr\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zip\": \"10001\"\n  }\n}"
+              "raw": "{\n  \"firstName\": \"Dr. Jane\",\n  \"lastName\": \"Smith\",\n  \"email\": \"dr.jane.smith@example.com\",\n  \"phoneNumber\": \"+1234567890\",\n  \"password\": \"SecurePassword123!\",\n  \"specialization\": \"Cardiology\",\n  \"licenseNumber\": \"MD123456\",\n  \"yearsOfExperience\": 5,\n  \"clinicAddress\": {\n    \"street\": \"456 Medical Center Dr\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zip\": \"10002\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/provider/register",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "register"]
             },
-            "description": "Register a new healthcare provider account"
+            "description": "Register a new healthcare provider account."
           },
           "response": []
         },
@@ -165,14 +175,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"patient@example.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/patient/login",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "patient", "login"]
             },
-            "description": "Login as a patient"
+            "description": "Authenticate as a patient."
           },
           "response": []
         },
@@ -188,14 +198,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"provider@example.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"dr.jane.smith@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/provider/login",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "login"]
             },
-            "description": "Login as a healthcare provider"
+            "description": "Authenticate as a healthcare provider."
           },
           "response": []
         },
@@ -218,7 +228,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "auth", "refresh"]
             },
-            "description": "Refresh access token using refresh token"
+            "description": "Refresh the access token using a valid refresh token."
           },
           "response": []
         },
@@ -245,7 +255,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "auth", "logout"]
             },
-            "description": "Logout and invalidate refresh token"
+            "description": "Logout and invalidate the refresh token."
           },
           "response": []
         },
@@ -260,18 +270,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/auth/debug",
+              "raw": "{{baseUrl}}/api/v1/debug/token",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "debug"]
+              "path": ["api", "v1", "debug", "token"]
             },
-            "description": "Debug current token information"
+            "description": "Debug JWT token - Test authentication and view current user data."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Patient Management",
+      "name": "👤 Patient Management",
       "item": [
         {
           "name": "Get Patient Profile",
@@ -288,7 +298,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "patient", "profile"]
             },
-            "description": "Get the authenticated patient's profile"
+            "description": "Retrieve the authenticated patient's profile information."
           },
           "response": []
         },
@@ -308,21 +318,21 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"address\": {\n    \"street\": \"456 Updated St\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zip\": \"10001\"\n  }\n}"
+              "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"address\": {\n    \"street\": \"789 Updated St\",\n    \"city\": \"Los Angeles\",\n    \"state\": \"CA\",\n    \"zip\": \"90210\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/patient/profile",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "patient", "profile"]
             },
-            "description": "Update the authenticated patient's profile"
+            "description": "Update the authenticated patient's profile information."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Provider Management",
+      "name": "👨‍⚕️ Provider Management",
       "item": [
         {
           "name": "Get Provider Profile",
@@ -339,7 +349,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "profile"]
             },
-            "description": "Get the authenticated provider's profile"
+            "description": "Retrieve the authenticated provider's profile information."
           },
           "response": []
         },
@@ -359,21 +369,21 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"Dr. Jane Updated\",\n  \"lastName\": \"Smith Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"specialization\": \"Neurology\",\n  \"yearsOfExperience\": 6,\n  \"clinicAddress\": {\n    \"street\": \"456 Updated Medical Center Dr\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zip\": \"10001\"\n  }\n}"
+              "raw": "{\n  \"firstName\": \"Dr. Jane Updated\",\n  \"lastName\": \"Smith Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"specialization\": \"Neurology\",\n  \"yearsOfExperience\": 8,\n  \"clinicAddress\": {\n    \"street\": \"789 Medical Plaza\",\n    \"city\": \"Los Angeles\",\n    \"state\": \"CA\",\n    \"zip\": \"90210\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/provider/profile",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "profile"]
             },
-            "description": "Update the authenticated provider's profile"
+            "description": "Update the authenticated provider's profile information."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Basic Availability",
+      "name": "📅 Basic Availability",
       "item": [
         {
           "name": "Create Availability Slot",
@@ -391,14 +401,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"date\": \"2024-12-15\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDuration\": 30,\n  \"maxAppointments\": 1,\n  \"timezone\": \"UTC\",\n  \"isRecurring\": false,\n  \"notes\": \"General consultations\"\n}"
+              "raw": "{\n  \"date\": \"2024-01-15\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDuration\": 30,\n  \"maxAppointments\": 1,\n  \"isRecurring\": false,\n  \"timezone\": \"America/New_York\",\n  \"notes\": \"General consultations\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/provider/availability",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "availability"]
             },
-            "description": "Create a new availability slot for the authenticated provider"
+            "description": "Create a new availability slot for the authenticated provider."
           },
           "response": []
         },
@@ -418,14 +428,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"date\": \"2024-12-15\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDuration\": 30,\n  \"maxAppointments\": 1,\n  \"timezone\": \"UTC\",\n  \"isRecurring\": true,\n  \"recurrencePattern\": \"WEEKLY\",\n  \"recurrenceEndDate\": \"2024-12-31\",\n  \"notes\": \"Weekly consultations\"\n}"
+              "raw": "{\n  \"date\": \"2024-01-15\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"isRecurring\": true,\n  \"recurrencePattern\": \"WEEKLY\",\n  \"recurrenceEndDate\": \"2024-12-31\",\n  \"slotDuration\": 30\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/provider/availability",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "availability"]
             },
-            "description": "Create recurring availability slots"
+            "description": "Create recurring availability slots for the authenticated provider."
           },
           "response": []
         },
@@ -445,14 +455,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"slots\": [\n    {\n      \"date\": \"2024-12-15\",\n      \"startTime\": \"09:00\",\n      \"endTime\": \"12:00\",\n      \"slotDuration\": 30,\n      \"maxAppointments\": 1,\n      \"timezone\": \"UTC\"\n    },\n    {\n      \"date\": \"2024-12-16\",\n      \"startTime\": \"14:00\",\n      \"endTime\": \"17:00\",\n      \"slotDuration\": 30,\n      \"maxAppointments\": 1,\n      \"timezone\": \"UTC\"\n    }\n  ]\n}"
+              "raw": "{\n  \"slots\": [\n    {\n      \"date\": \"2024-01-15\",\n      \"startTime\": \"09:00\",\n      \"endTime\": \"12:00\",\n      \"slotDuration\": 30\n    },\n    {\n      \"date\": \"2024-01-16\",\n      \"startTime\": \"14:00\",\n      \"endTime\": \"17:00\",\n      \"slotDuration\": 30\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/provider/availability/bulk",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "availability", "bulk"]
             },
-            "description": "Create multiple availability slots in a single request"
+            "description": "Create multiple availability slots in a single request."
           },
           "response": []
         },
@@ -467,7 +477,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/provider/availability/my?page=1&limit=20&date=2024-12-15",
+              "raw": "{{baseUrl}}/api/v1/provider/availability/my?page=1&limit=20&date=2024-01-15",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "availability", "my"],
               "query": [
@@ -481,11 +491,11 @@
                 },
                 {
                   "key": "date",
-                  "value": "2024-12-15"
+                  "value": "2024-01-15"
                 }
               ]
             },
-            "description": "Get the authenticated provider's availability slots"
+            "description": "Get availability slots for the authenticated provider."
           },
           "response": []
         },
@@ -495,7 +505,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/provider/{{providerId}}/availability?page=1&limit=20&startDate=2024-12-01&endDate=2024-12-31",
+              "raw": "{{baseUrl}}/api/v1/provider/{{providerId}}/availability?page=1&limit=20&date=2024-01-15",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "{{providerId}}", "availability"],
               "query": [
@@ -508,16 +518,12 @@
                   "value": "20"
                 },
                 {
-                  "key": "startDate",
-                  "value": "2024-12-01"
-                },
-                {
-                  "key": "endDate",
-                  "value": "2024-12-31"
+                  "key": "date",
+                  "value": "2024-01-15"
                 }
               ]
             },
-            "description": "Get availability slots for a specific provider"
+            "description": "Get availability slots for a specific provider."
           },
           "response": []
         },
@@ -537,14 +543,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"startTime\": \"10:00\",\n  \"endTime\": \"18:00\",\n  \"status\": \"AVAILABLE\",\n  \"notes\": \"Updated consultation hours\"\n}"
+              "raw": "{\n  \"startTime\": \"10:00\",\n  \"endTime\": \"18:00\",\n  \"notes\": \"Updated consultation hours\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/provider/availability/123",
+              "raw": "{{baseUrl}}/api/v1/provider/availability/{{availabilitySlotId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "provider", "availability", "123"]
+              "path": ["api", "v1", "provider", "availability", "{{availabilitySlotId}}"]
             },
-            "description": "Update an existing availability slot"
+            "description": "Update a specific availability slot."
           },
           "response": []
         },
@@ -559,11 +565,11 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/provider/availability/123",
+              "raw": "{{baseUrl}}/api/v1/provider/availability/{{availabilitySlotId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "provider", "availability", "123"]
+              "path": ["api", "v1", "provider", "availability", "{{availabilitySlotId}}"]
             },
-            "description": "Delete an availability slot"
+            "description": "Delete a specific availability slot."
           },
           "response": []
         },
@@ -573,13 +579,21 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/availability/search?date=2024-12-15&specialization=Cardiology&city=New York&page=1&limit=20",
+              "raw": "{{baseUrl}}/api/v1/availability/search?date=2024-01-15&startTime=09:00&endTime=17:00&specialization=Cardiology&city=New York&page=1&limit=20",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "availability", "search"],
               "query": [
                 {
                   "key": "date",
-                  "value": "2024-12-15"
+                  "value": "2024-01-15"
+                },
+                {
+                  "key": "startTime",
+                  "value": "09:00"
+                },
+                {
+                  "key": "endTime",
+                  "value": "17:00"
                 },
                 {
                   "key": "specialization",
@@ -599,14 +613,14 @@
                 }
               ]
             },
-            "description": "Search for available providers based on filters"
+            "description": "Search for available providers based on various filters."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Enhanced Availability",
+      "name": "🎯 Enhanced Availability",
       "item": [
         {
           "name": "Create Comprehensive Availability",
@@ -624,14 +638,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"daySlots\": [\n    {\n      \"dayOfWeek\": 1,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\",\n      \"isAvailable\": true\n    },\n    {\n      \"dayOfWeek\": 2,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\",\n      \"isAvailable\": true\n    }\n  ],\n  \"timeSlots\": [\n    {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"10:00\",\n      \"duration\": 30\n    },\n    {\n      \"startTime\": \"10:00\",\n      \"endTime\": \"11:00\",\n      \"duration\": 30\n    }\n  ],\n  \"providerSettings\": {\n    \"workingHours\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\"\n    },\n    \"breakTime\": {\n      \"startTime\": \"12:00\",\n      \"endTime\": \"13:00\"\n    },\n    \"maxAppointmentsPerSlot\": 1,\n    \"advanceBookingDays\": 30,\n    \"timezone\": \"UTC\"\n  },\n  \"blockDays\": [\n    {\n      \"date\": \"2024-12-25\",\n      \"reason\": \"Christmas Holiday\",\n      \"isRecurring\": true\n    }\n  ]\n}"
+              "raw": "{\n  \"providerSettings\": {\n    \"defaultSlotDuration\": 30,\n    \"maxAppointmentsPerSlot\": 1,\n    \"advanceBookingDays\": 30,\n    \"timezone\": \"America/New_York\",\n    \"workingDays\": [\"MONDAY\", \"TUESDAY\", \"WEDNESDAY\", \"THURSDAY\", \"FRIDAY\"],\n    \"workingHours\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\"\n    }\n  },\n  \"blockDays\": [\n    {\n      \"date\": \"2024-12-25\",\n      \"reason\": \"Christmas Holiday\"\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/provider/availability/comprehensive",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "availability", "comprehensive"]
             },
-            "description": "Create comprehensive availability with day slots, time slots, settings, and block days"
+            "description": "Create comprehensive availability with settings and block days."
           },
           "response": []
         },
@@ -650,7 +664,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "settings", "availability"]
             },
-            "description": "Get the authenticated provider's availability settings"
+            "description": "Get availability settings for the authenticated provider."
           },
           "response": []
         },
@@ -670,14 +684,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"workingHours\": {\n    \"startTime\": \"09:00\",\n    \"endTime\": \"17:00\"\n  },\n  \"breakTime\": {\n    \"startTime\": \"12:00\",\n    \"endTime\": \"13:00\"\n  },\n  \"maxAppointmentsPerSlot\": 1,\n  \"advanceBookingDays\": 30,\n  \"timezone\": \"UTC\"\n}"
+              "raw": "{\n  \"defaultSlotDuration\": 45,\n  \"maxAppointmentsPerSlot\": 2,\n  \"advanceBookingDays\": 60,\n  \"timezone\": \"America/Los_Angeles\",\n  \"workingDays\": [\"MONDAY\", \"TUESDAY\", \"WEDNESDAY\", \"THURSDAY\", \"FRIDAY\", \"SATURDAY\"],\n  \"workingHours\": {\n    \"startTime\": \"08:00\",\n    \"endTime\": \"18:00\"\n  },\n  \"breakTime\": {\n    \"startTime\": \"12:00\",\n    \"endTime\": \"13:00\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/provider/settings/availability",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "settings", "availability"]
             },
-            "description": "Create or update provider availability settings"
+            "description": "Create or update availability settings for the authenticated provider."
           },
           "response": []
         },
@@ -692,13 +706,13 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/provider/block-days?startDate=2024-12-01&endDate=2024-12-31",
+              "raw": "{{baseUrl}}/api/v1/provider/block-days?startDate=2024-01-01&endDate=2024-12-31",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "block-days"],
               "query": [
                 {
                   "key": "startDate",
-                  "value": "2024-12-01"
+                  "value": "2024-01-01"
                 },
                 {
                   "key": "endDate",
@@ -706,7 +720,7 @@
                 }
               ]
             },
-            "description": "Get the authenticated provider's blocked days"
+            "description": "Get blocked days for the authenticated provider."
           },
           "response": []
         },
@@ -726,14 +740,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"date\": \"2024-12-25\",\n  \"reason\": \"Christmas Holiday\",\n  \"isRecurring\": true\n}"
+              "raw": "{\n  \"date\": \"2024-12-25\",\n  \"reason\": \"Christmas Holiday\",\n  \"isRecurring\": true,\n  \"recurrencePattern\": \"YEARLY\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/provider/block-days",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "block-days"]
             },
-            "description": "Create a blocked day for the authenticated provider"
+            "description": "Create a blocked day for the authenticated provider."
           },
           "response": []
         },
@@ -753,14 +767,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"blockDays\": [\n    {\n      \"date\": \"2024-12-25\",\n      \"reason\": \"Christmas Holiday\",\n      \"isRecurring\": true\n    },\n    {\n      \"date\": \"2024-12-26\",\n      \"reason\": \"Boxing Day\",\n      \"isRecurring\": true\n    }\n  ]\n}"
+              "raw": "{\n  \"blockDays\": [\n    {\n      \"date\": \"2024-12-25\",\n      \"reason\": \"Christmas Holiday\"\n    },\n    {\n      \"date\": \"2024-12-26\",\n      \"reason\": \"Boxing Day\"\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/provider/block-days/bulk",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "provider", "block-days", "bulk"]
             },
-            "description": "Create multiple blocked days for the authenticated provider"
+            "description": "Create multiple blocked days for the authenticated provider."
           },
           "response": []
         },
@@ -770,13 +784,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/providers/{{providerId}}/availability/enhanced?startDate=2024-12-01&endDate=2024-12-31",
+              "raw": "{{baseUrl}}/api/v1/providers/{{providerId}}/availability/enhanced?startDate=2024-01-01&endDate=2024-12-31",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "providers", "{{providerId}}", "availability", "enhanced"],
               "query": [
                 {
                   "key": "startDate",
-                  "value": "2024-12-01"
+                  "value": "2024-01-01"
                 },
                 {
                   "key": "endDate",
@@ -784,7 +798,7 @@
                 }
               ]
             },
-            "description": "Get comprehensive availability information for a specific provider"
+            "description": "Get comprehensive availability information for a specific provider."
           },
           "response": []
         },
@@ -794,17 +808,182 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/availability/calendar/{{providerId}}?month=2024-12",
+              "raw": "{{baseUrl}}/api/v1/availability/calendar/{{providerId}}?month=2024-01",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "availability", "calendar", "{{providerId}}"],
               "query": [
                 {
                   "key": "month",
-                  "value": "2024-12"
+                  "value": "2024-01"
                 }
               ]
             },
-            "description": "Get calendar view of provider availability"
+            "description": "Get calendar view of provider availability."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏥 Appointments",
+      "item": [
+        {
+          "name": "Create Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"providerId\": \"{{providerId}}\",\n  \"appointmentType\": \"General Checkup\",\n  \"appointmentMode\": \"IN_PERSON\",\n  \"scheduledDate\": \"2024-01-15T10:00:00Z\",\n  \"estimatedAmount\": 150.00,\n  \"reasonForVisit\": \"Annual checkup and blood work\",\n  \"notes\": \"Patient prefers morning appointments\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments"]
+            },
+            "description": "Create a new appointment."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments?page=1&limit=20&patientId={{patientId}}&providerId={{providerId}}&status=SCHEDULED",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "patientId",
+                  "value": "{{patientId}}"
+                },
+                {
+                  "key": "providerId",
+                  "value": "{{providerId}}"
+                },
+                {
+                  "key": "status",
+                  "value": "SCHEDULED"
+                }
+              ]
+            },
+            "description": "Get all appointments with pagination and filters."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Appointment by UUID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/{{appointmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "{{appointmentId}}"]
+            },
+            "description": "Get appointment by UUID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentType\": \"Follow-up Consultation\",\n  \"scheduledDate\": \"2024-01-16T14:00:00Z\",\n  \"estimatedAmount\": 200.00,\n  \"notes\": \"Rescheduled appointment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/{{appointmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "{{appointmentId}}"]
+            },
+            "description": "Update appointment by UUID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Appointment Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"COMPLETED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/{{appointmentId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "{{appointmentId}}", "status"]
+            },
+            "description": "Update appointment status (Provider only)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Appointment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/{{appointmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "{{appointmentId}}"]
+            },
+            "description": "Delete appointment by UUID."
           },
           "response": []
         }
@@ -813,22 +992,34 @@
   ],
   "event": [
     {
-      "listen": "prerequest",
+      "listen": "test",
       "script": {
         "type": "text/javascript",
         "exec": [
-          "// Auto-set access token from login responses",
-          "if (pm.response && pm.response.code === 200 || pm.response.code === 201) {",
-          "    const response = pm.response.json();",
-          "    if (response.data && response.data.tokens) {",
-          "        pm.collectionVariables.set('accessToken', response.data.tokens.accessToken);",
-          "        pm.collectionVariables.set('refreshToken', response.data.tokens.refreshToken);",
+          "// Auto-extract tokens from login responses",
+          "if (pm.response.code === 200 || pm.response.code === 201) {",
+          "    const responseJson = pm.response.json();",
+          "    if (responseJson.data && responseJson.data.tokens) {",
+          "        pm.collectionVariables.set('accessToken', responseJson.data.tokens.accessToken);",
+          "        pm.collectionVariables.set('refreshToken', responseJson.data.tokens.refreshToken);",
           "    }",
-          "    if (response.data && response.data.user) {",
-          "        if (response.data.user.role === 'provider') {",
-          "            pm.collectionVariables.set('providerId', response.data.user.id);",
-          "        } else if (response.data.user.role === 'patient') {",
-          "            pm.collectionVariables.set('patientId', response.data.user.id);",
+          "    if (responseJson.data && responseJson.data.user) {",
+          "        if (responseJson.data.user.role === 'patient') {",
+          "            pm.collectionVariables.set('patientId', responseJson.data.user.id);",
+          "        } else if (responseJson.data.user.role === 'provider') {",
+          "            pm.collectionVariables.set('providerId', responseJson.data.user.id);",
+          "        }",
+          "    }",
+          "}",
+          "",
+          "// Auto-extract IDs from creation responses",
+          "if (pm.response.code === 201) {",
+          "    const responseJson = pm.response.json();",
+          "    if (responseJson.data && responseJson.data.id) {",
+          "        if (pm.request.url.path.includes('appointments')) {",
+          "            pm.collectionVariables.set('appointmentId', responseJson.data.id);",
+          "        } else if (pm.request.url.path.includes('availability')) {",
+          "            pm.collectionVariables.set('availabilitySlotId', responseJson.data.id);",
           "        }",
           "    }",
           "}"
